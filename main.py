@@ -1,4 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends,HTTPException
+from fastapi.responses import JSONResponse
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -15,6 +16,8 @@ from sqlalchemy.exc import SQLAlchemyError
 import logging
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
+from config import engine
+from models import Base
 
 
 logging.basicConfig(level=logging.INFO)
@@ -38,8 +41,11 @@ def get_db():
     finally:
         db.close()
 
-app = FastAPI()
 
+app = FastAPI()
+@app.on_event("startup")
+def startup_event():
+    Base.metadata.create_all(bind=engine)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  
@@ -47,11 +53,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 @app.exception_handler(SQLAlchemyError)
 async def sqlalchemy_exception_handler(request, exc):
     logger.error(f"DB Error: {exc}")
-    return HTTPException(status_code=500, detail="A Database error occurred")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "A database error occurred"}
+    )
 
 
 @app.post("/orders", status_code=201)
@@ -227,7 +235,7 @@ async def update_order_status(
         raise HTTPException(status_code=403, detail="Not authorized")
     updated_by = user["sub"]
 
-    order = db.query(Order).filter(Order.order_id == order_id).with_for_update().first()  
+    order = db.query(Order).filter(Order.order_id == order_id).with_for_update().first()  #lock the row for update
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 

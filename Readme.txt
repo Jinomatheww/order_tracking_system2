@@ -1,187 +1,150 @@
-Order Tracking System
-Overview
+# Order Tracking System (FastAPI Backend)
 
-The Order Tracking System is a full-stack web application designed to manage and track orders in real time. It supports multiple user roles and provides secure authentication, live order updates, and a clean separation between backend and frontend.
+This project is a backend Order Tracking System built using FastAPI.  
+It supports role-based authentication, order lifecycle management, and real-time order status updates using WebSockets.
 
-The backend is built using FastAPI and PostgreSQL, handling business logic, authentication, and database operations. The frontend is built using React (Vite) and provides a responsive interface for users to interact with the system.
+This is an internal system where users are created by an administrator and not through public signup.
 
-This project is suitable for real-world use cases such as e-commerce platforms, food delivery systems, or internal order management tools.
 
-Key Features
 
-User authentication using JWT (JSON Web Tokens)
+## Features
 
-Secure password hashing with bcrypt
+- JWT-based authentication
+- Role-based access control
+  - Operations Team
+  - Merchant
+- Order creation and tracking
+- Order status transition validation
+- Order status history
+- Real-time order updates using WebSockets
+- PostgreSQL database persistence
 
-Role-based access control (admin / merchant / delivery)
 
-Order creation and status updates
 
-API key–based authentication for delivery services
+## Tech Stack
 
-PostgreSQL database integration using SQLAlchemy ORM
+- Python
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- JWT Authentication
+- WebSockets
 
-Environment-based configuration using .env
 
-Modular and scalable project structure
 
-Separate frontend and backend architecture
+## Live API Documentation
 
-Tech Stack
-Backend
+After deployment, Swagger UI is available at:
 
-Python
+https://your-app-url.onrender.com/docs
 
-FastAPI
+This allows testing all APIs directly from the browser.
 
-SQLAlchemy
 
-PostgreSQL
 
-JWT Authentication
+## User Management Design
 
-Passlib (bcrypt)
+This system does not include a public signup page.
 
-python-dotenv
+Users are created by an authorized admin using a secure API endpoint.
+This is intentional and reflects real-world internal system design.
 
-Frontend
+Initial users are created once after deployment and stored permanently in the database.
 
-React
 
-Vite
 
-JavaScript
+## Demo Credentials (After Initial Setup)
 
-HTML & CSS
+Operations Team:
+- Username: ops1
+- Password: op@123
 
-Project Structure
-order_tracking_system/
-│
-├── frontend/               # React frontend
-│
-├── venv/                   # Python virtual environment
-│
-├── config.py               # Database, JWT, and security configuration
-├── main.py                 # FastAPI application entry point
-├── models.py               # Database models
-├── schemas.py              # Pydantic schemas
-├── enums.py                # Order status enums and transitions
-├── init_db.py              # Database initialization script
-├── requirements.txt        # Backend dependencies
-├── .env                    # Environment variables
-└── README.md               # Project documentation
+Merchant:
+- Username: merchant1
+- Password: merchant123
 
-Prerequisites
 
-Before running the project, make sure you have:
 
-Python 3.10 or higher
+## Initial Setup After Deployment
 
-Node.js 20.19+ or 22+
+1. Open Swagger UI:
+   /docs
 
-PostgreSQL installed and running
+2. Create first admin user:
+   POST /users
 
-Git installed
+   Request body:
+   {
+     "username": "ops1",
+     "password": "ops123",
+     "role": "operations_team"
+   }
 
-Step-by-Step Setup Guide
-1. Clone the Repository
-git clone https://github.com/your-username/order_tracking_system.git
-cd order_tracking_system
+3. Login:
+   POST /login
 
-2. Backend Setup (FastAPI)
-Create and Activate Virtual Environment
+4. Use the received JWT token to authorize further requests.
+
+5. Create merchant users using the same /users endpoint.
+
+
+
+## Local Development Setup
+
+Clone the repository:
+
+git clone https://github.com/your-username/order-tracking-system
+cd order-tracking-system
+
+Create virtual environment and install dependencies:
+
 python -m venv venv
-venv\Scripts\activate   # Windows
-
-Install Dependencies
+source venv/bin/activate
 pip install -r requirements.txt
 
-3. Configure Environment Variables
+Create a .env file:
 
-Create a .env file in the root directory:
+DATABASE_URL=postgresql+psycopg2://username:password@localhost:5432/order_tracking
+SECRET_KEY=your-secret-key
+DELIVERY_API_KEY=delivery-secret-key
 
-SECRET_KEY=your_jwt_secret_key
-DELIVERY_API_KEY=your_delivery_api_key
-DATABASE_URL=postgresql+psycopg2://postgres:password@localhost:5432/order_tracking
+Run the application:
 
-4. Initialize the Database
-
-Make sure PostgreSQL is running and the database exists.
-
-python init_db.py
-
-5. Run the Backend Server
 uvicorn main:app --reload
 
+Access Swagger UI locally:
 
-Backend will run at:
+http://localhost:8000/docs
 
-http://127.0.0.1:8000
+---
+
+## Roles and Permissions
+
+Operations Team:
+- View all orders
+- Update order status
+- Create merchant users
+
+Merchant:
+- Create orders
+- View own orders
+- Receive real-time status updates
+
+Delivery:
+- Update order status using API key authentication
+
+---
+
+## Real-Time Updates
+
+WebSocket endpoint:
+/ws/orders
+
+Authenticated users receive live order status updates based on role and ownership.
+
+---
 
 
-API documentation:
 
-http://127.0.0.1:8000/docs
-
-Frontend Setup (React + Vite)
-6. Navigate to Frontend Folder
-cd frontend
-
-7. Install Frontend Dependencies
-npm install
-
-8. Start Frontend Server
-npm run dev
-
-
-Frontend will run at:
-
-http://localhost:5173
-
-Authentication Flow
-
-Users log in with credentials
-
-Backend issues a JWT access token
-
-Token is required for protected routes
-
-Delivery services use an API key for authentication
-
-Passwords are never stored in plain text
-
-Security Measures
-
-JWT expiration handling
-
-Password hashing using bcrypt
-
-Environment-based secrets
-
-API key validation for delivery endpoints
-
-Role-based authorization logic
-
-Future Improvements
-
-Refresh token support
-
-WebSocket-based live order updates
-
-Admin dashboard analytics
-
-Dockerized deployment
-
-CI/CD pipeline integration
-
-Improved frontend UI/UX
-
-Author
-
-Jino Mathew
-MCA Student | Full-Stack Developer
-Focused on building secure, scalable, and real-world applications.
-
-License
-
-This project is open-source and available for learning and educational purposes.
+Backend Developer
+Order Tracking System Project
